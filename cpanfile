@@ -1,0 +1,10 @@
+requires 'perl' => '5.020';
+requires 'Encode::Simple';
+requires 'Future::Mojo';
+requires 'Future::Utils';
+requires 'List::Util' => '1.45';
+requires 'Mojolicious' => '9.0';
+requires 'Mojo::Promise::Role::Futurify';
+requires 'Mojo::SQLite' => '3.000';
+requires 'Mojo::WebService::Twitter';
+requires 'Unicode::Normalize';
