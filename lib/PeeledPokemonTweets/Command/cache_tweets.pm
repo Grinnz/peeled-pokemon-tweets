@@ -1,5 +1,6 @@
 package PeeledPokemonTweets::Command::cache_tweets;
 
+use 5.020;
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Future::Utils 'repeat';
 use List::Util 'first';
