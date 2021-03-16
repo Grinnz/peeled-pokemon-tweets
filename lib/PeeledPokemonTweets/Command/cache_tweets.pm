@@ -43,7 +43,7 @@ sub cache_tweet ($self, $tweet) {
   push @{$tweet_url->path}, $tweet->id;
   my $image_url = $photo->media_url;
   print "Caching tweet and image URLs for Dex No $dex_no: $tweet_url $image_url\n";
-  $self->app->sqlite->db->query('INSERT OR REPLACE INTO "pokemon_tweets"
+  $self->app->sqlite->db->query('INSERT OR IGNORE INTO "pokemon_tweets"
     ("dex_no","tweet_url","image_url") VALUES (?,?,?)', $dex_no, $tweet_url, $image_url)->rows;
 }
 
