@@ -4,6 +4,7 @@ requires 'Future::Utils';
 requires 'List::Util' => '1.45';
 requires 'Math::BigInt';
 requires 'Mojolicious' => '9.0';
+requires 'Mojo::Log::Role::Clearable';
 requires 'Mojo::Promise::Role::Futurify';
 requires 'Mojo::SQLite' => '3.000';
 requires 'Mojo::WebService::Twitter' => '1.002';

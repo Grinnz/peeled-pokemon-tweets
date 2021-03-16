@@ -10,6 +10,8 @@ push @{app->commands->namespaces}, 'PeeledPokemonTweets::Command';
 
 plugin Config => {file => app->home->child('peeled_pokemon_tweets.conf')};
 
+app->log->with_roles('Mojo::Log::Role::Clearable')->path(app->config->{logfile}) if app->config->{logfile};
+
 my $dbfile = app->home->child('peeled_pokemon_tweets.db');
 my $migrations = app->home->child('peeled_pokemon_tweets.sql');
 my $sqlite;

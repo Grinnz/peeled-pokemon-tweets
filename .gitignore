@@ -17,5 +17,5 @@ nytprof.out
 *.bs
 /_eumm/
 /peeled_pokemon_tweets.conf
-/peeled_pokemon_tweets.db
+/peeled_pokemon_tweets.db*
 /hypnotoad.pid
