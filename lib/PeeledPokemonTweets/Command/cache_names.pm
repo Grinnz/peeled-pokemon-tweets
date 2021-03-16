@@ -1,5 +1,6 @@
 package PeeledPokemonTweets::Command::cache_names;
 
+use 5.020;
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Encode::Simple 'encode_utf8';
 use Future::Utils 'repeat';
@@ -9,7 +10,7 @@ use Mojo::UserAgent;
 use Mojo::URL;
 use Unicode::Normalize 'NFC';
 
-use constant POKEAPI_BASE_URL => 'https://pokeapi.co/api/v2/';
+use constant POKEAPI_BASE_URL => 'https://pokeapi.co/api/v2';
 
 has description => 'Cache pokemon names by dex number';
 has usage => sub ($self) { "Usage: $0 cache-names\n" };
@@ -26,7 +27,8 @@ sub run ($self, @args) {
     $ua->get_p($next_url)->then(sub ($tx) {
       my $data = $tx->res->json;
       my $p = Mojo::Promise->map({concurrency => 5}, sub {
-        $ua->get_p($_)->then(sub ($tx) {
+        my $species_url = $_ =~ s/\/\z//r; # bug with trailing slash
+        $ua->get_p($species_url)->then(sub ($tx) {
           $self->cache_pokemon_names($tx->res->json);
         });
       }, map { $_->{url} } @{$data->{results}});
@@ -39,12 +41,18 @@ sub run ($self, @args) {
 sub cache_pokemon_names ($self, $data) {
   my $dex_entry = first { $_->{pokedex}{name} eq 'national' } @{$data->{pokedex_numbers}};
   my $dex_no = defined $dex_entry ? $dex_entry->{entry_number} : $data->{id};
+  return 0 unless defined $dex_no;
   my @names = uniqstr map { NFC fc $_->{name} } @{$data->{names}};
   return 0 unless @names;
   print encode_utf8 "Caching names for Dex No $dex_no: @names\n";
   my $insert_str = join ',', ('(?,?)')x@names;
-  $self->app->sqlite->db->query('INSERT OR IGNORE INTO "pokemon_names" ("dex_no","name")
+  my $db = $self->app->sqlite->db;
+  my $tx = $db->begin;
+  $db->query('DELETE FROM "pokemon_names" WHERE "dex_no"=?', $dex_no);
+  my $rows = $db->query('INSERT OR IGNORE INTO "pokemon_names" ("dex_no","name")
     VALUES ' . $insert_str, map { ($dex_no, $_) } @names)->rows;
+  $tx->commit;
+  return $rows;
 };
 
 1;
