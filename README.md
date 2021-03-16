@@ -1,6 +1,6 @@
 # Peeled Pokémon Tweets
 
-Stores and returns peeled Pokémon by name.
+Stores and returns [peeled Pokémon](https://twitter.com/peeled_pokemon) by name.
 
 ## Setup
 
