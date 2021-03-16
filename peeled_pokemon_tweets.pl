@@ -21,7 +21,7 @@ helper sqlite => sub ($c) {
   return $sqlite;
 };
 
-get '/api/tweet' => sub ($c) {
+get '/api/peeled' => sub ($c) {
   my $name = $c->req->param('name') // return $c->reply->not_found;
   my $row = $c->sqlite->db->query(q{SELECT "pn"."dex_no", "pt"."tweet_url", "pt"."image_url"
     FROM "pokemon_names" AS "pn"
