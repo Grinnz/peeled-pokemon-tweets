@@ -35,7 +35,7 @@ sub run ($self, @args) {
 
 sub cache_tweet ($self, $tweet) {
   my ($text, $media) = ($tweet->text, $tweet->media);
-  my ($dex_no) = $text =~ m/([0-9]{3,})/;
+  my ($dex_no) = $text =~ m/([0-9]{3,})[ ]*\./;
   my $photo = first { $_->type eq 'photo' } @$media;
   return 0 unless defined $dex_no and defined $photo;
   my $tweet_url = Mojo::URL->new(TWEET_BASE_URL);

@@ -23,7 +23,7 @@ helper sqlite => sub ($c) {
 
 get '/api/tweet' => sub ($c) {
   my $name = $c->req->param('name') // return $c->reply->not_found;
-  my $row = $c->sqlite->db->query(q{SELECT "pn"."dex_no", "pt"."tweet_url"
+  my $row = $c->sqlite->db->query(q{SELECT "pn"."dex_no", "pt"."tweet_url", "pt"."image_url"
     FROM "pokemon_names" AS "pn"
     LEFT JOIN "pokemon_tweets" AS "pt" ON "pt"."dex_no"="pn"."dex_no"
     WHERE "pn"."name"=?}, NFC(fc $name))->hashes->first // return $c->reply->not_found;
