@@ -56,7 +56,7 @@ Caches mappings of national dex number to tweet and image URLs from the feed of 
 ## API
 
 ```
-GET https://peeled.grinnz.com/api/peeled?name=dustox
+GET /api/peeled?name=dustox
 ```
 
 ```
