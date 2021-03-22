@@ -3,6 +3,7 @@
 use 5.020;
 use Mojolicious::Lite -signatures;
 use Mojo::SQLite;
+use Mojo::Util 'trim';
 use Unicode::Normalize 'NFC';
 use lib::relative 'lib';
 
@@ -24,7 +25,9 @@ helper sqlite => sub ($c) {
 };
 
 get '/api/peeled' => sub ($c) {
-  my $name = $c->req->param('name') // return $c->reply->not_found;
+  my $name = trim($c->req->param('name') // '');
+  return $c->reply->not_found unless length $name;
+  $name =~ s/\N{U+FE0F}//g; # emoji variation selector
   my $row = $c->sqlite->db->query(q{SELECT "pn"."dex_no", "pt"."tweet_url", "pt"."image_url"
     FROM "pokemon_names" AS "pn"
     LEFT JOIN "pokemon_tweets" AS "pt" ON "pt"."dex_no"="pn"."dex_no"
