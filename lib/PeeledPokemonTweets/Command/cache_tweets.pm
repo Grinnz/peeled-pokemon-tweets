@@ -3,7 +3,6 @@ package PeeledPokemonTweets::Command::cache_tweets;
 use 5.020;
 use Mojo::Base 'Mojolicious::Command', -signatures;
 use Future::Utils 'repeat';
-use List::Util 'first';
 use Math::BigInt;
 use Mojo::WebService::Twitter;
 
@@ -37,14 +36,17 @@ sub run ($self, @args) {
 sub cache_tweet ($self, $tweet) {
   my ($text, $media) = ($tweet->text, $tweet->media);
   my ($dex_no) = $text =~ m/([0-9]{3,})[ ]*\./;
-  my $photo = first { $_->type eq 'photo' } @$media;
-  return 0 unless defined $dex_no and defined $photo;
+  my @image_urls = map { $_->media_url } grep { $_->type eq 'photo' } @$media;
+  return 0 unless defined $dex_no and @image_urls;
   my $tweet_url = Mojo::URL->new(TWEET_BASE_URL);
   push @{$tweet_url->path}, $tweet->id;
-  my $image_url = $photo->media_url;
-  print "Caching tweet and image URLs for Dex No $dex_no: $tweet_url $image_url\n";
-  $self->app->sqlite->db->query('INSERT OR IGNORE INTO "pokemon_tweets"
-    ("dex_no","tweet_url","image_url") VALUES (?,?,?)', $dex_no, $tweet_url, $image_url)->rows;
+  print "Caching tweet and image URLs for Dex No $dex_no: $tweet_url @image_urls\n";
+  my $tweet_inserted = $self->app->sqlite->db->query('INSERT OR IGNORE INTO "pokemon_tweets"
+    ("dex_no","tweet_url") VALUES (?,?)', $dex_no, $tweet_url)->rows;
+  my $values_str = join ',', ('(?,?,?)')x@image_urls;
+  my $images_inserted = $self->app->sqlite->db->query('INSERT OR IGNORE INTO "pokemon_images"
+    ("dex_no","image_id","image_url") VALUES ' . $values_str,
+    map { ($dex_no, $_, $image_urls[$_]) } 0..$#image_urls)->rows;
 }
 
 1;

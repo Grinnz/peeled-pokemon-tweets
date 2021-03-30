@@ -28,10 +28,11 @@ get '/api/peeled' => sub ($c) {
   my $name = trim($c->req->param('name') // '');
   return $c->reply->not_found unless length $name;
   $name =~ s/\N{U+FE0F}//g; # emoji variation selector
-  my $row = $c->sqlite->db->query(q{SELECT "pn"."dex_no", "pt"."tweet_url", "pt"."image_url"
+  my $row = $c->sqlite->db->query(q{SELECT "pn"."dex_no", "pt"."tweet_url", "pi"."image_url"
     FROM "pokemon_names" AS "pn"
     LEFT JOIN "pokemon_tweets" AS "pt" ON "pt"."dex_no"="pn"."dex_no"
-    WHERE "pn"."name"=?}, NFC(fc $name))->hashes->first // return $c->reply->not_found;
+    LEFT JOIN "pokemon_images" AS "pi" ON "pi"."dex_no"="pn"."dex_no"
+    WHERE "pn"."name"=? ORDER BY RANDOM() LIMIT 1}, NFC(fc $name))->hashes->first // return $c->reply->not_found;
   $c->render(json => $row);
 };
 
